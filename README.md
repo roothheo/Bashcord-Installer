@@ -2,11 +2,9 @@
 
 > *"Discord mais en mieux, ou comment transformer ton client de chat en œuvre d'art"* 💅
 
-![Bashcord Banner](https://i.imgur.com/oHN41ss.png)
-
 ## 🤔 Qu'est-ce que c'est que ce bordel ?
 
-Bashcord Installer est l'outil ultime pour installer [Equicord](https://github.com/Equicord/Equicord), le mod Discord le plus stylé de l'univers. Parce que franchement, utiliser Discord sans mod en 2024, c'est comme manger des pâtes sans sel... techniquement possible, mais pourquoi se faire du mal ?
+Bashcord Installer est l'outil ultime pour installer [Bashcord1337](https://github.com/roothheo/Bashcord/), le mod Discord le plus stylé de l'univers. Parce que franchement, utiliser Discord sans mod en 2024, c'est comme manger des pâtes sans sel... techniquement possible, mais pourquoi se faire du mal ?
 
 ### 🎯 Pourquoi Bashcord ?
 - ✨ **Interface sarcastique** - Parce qu'on a tous besoin d'un peu d'humour dans nos vies
