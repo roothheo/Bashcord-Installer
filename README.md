@@ -124,7 +124,7 @@ Ce projet est sous licence [MIT](LICENSE) - Fais-en ce que tu veux, mais ne nous
 
 <div align="center">
 
-**Fait avec 💜 par un développeur de merde discord:jfaisdinfos**
+**Fait avec 💜 par un développeur de merde dc: jfaisdinfos .**
 
 *"Parce que la vie est trop courte pour utiliser Discord vanilla"*
 
