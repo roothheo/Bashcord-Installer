@@ -1,74 +1,133 @@
-# Equilotl
+# 🎭 Bashcord Installer - Parce que Discord Vanilla, c'est Chiant
 
-The Equicord Installer allows you to install [Equicord, the cutest Discord Desktop client mod](https://github.com/Equicord/Equicord)
+> *"Discord mais en mieux, ou comment transformer ton client de chat en œuvre d'art"* 💅
 
-![image](https://i.imgur.com/oHN41ss.png)
+![Bashcord Banner](https://i.imgur.com/oHN41ss.png)
 
-## Usage
+## 🤔 Qu'est-ce que c'est que ce bordel ?
 
-Windows
-- [GUI](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl.exe) 
-- [CLI](https://github.com/Equicord/Equilotl/releases/latest/download/EquilotlCli.exe)
+Bashcord Installer est l'outil ultime pour installer [Equicord](https://github.com/Equicord/Equicord), le mod Discord le plus stylé de l'univers. Parce que franchement, utiliser Discord sans mod en 2024, c'est comme manger des pâtes sans sel... techniquement possible, mais pourquoi se faire du mal ?
 
-MacOS
-- [GUI](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl.MacOS.zip)
+### 🎯 Pourquoi Bashcord ?
+- ✨ **Interface sarcastique** - Parce qu'on a tous besoin d'un peu d'humour dans nos vies
+- 🚀 **Installation rapide** - Plus rapide que le temps qu'il faut pour expliquer à ta grand-mère ce qu'est Discord
+- 🛡️ **Sécurisé** - Plus sûr que tes mots de passe "123456"
+- 🎨 **Personnalisable** - Parce que chacun mérite son propre style, même les développeurs
 
-Linux 
-- [GUI](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl-x11)
-- [CLI](https://github.com/Equicord/Equilotl/releases/latest/download/EquilotlCli-Linux)
-## Building from source
+## 📥 Téléchargements - Choisis ton Poison
 
-### Prerequisites 
+### 🪟 Windows (Pour les Masochistes)
+- [🎨 Version GUI](https://github.com/roothheo/Bashcord-Installer/releases/latest/download/Bashcord.exe) - *Pour ceux qui aiment cliquer*
+- [⌨️ Version CLI](https://github.com/roothheo/Bashcord-Installer/releases/latest/download/Bashcord-cli.exe) - *Pour les vrais hackers*
 
-You need to install the [Go programming language](https://go.dev/doc/install) and GCC, the GNU Compiler Collection (MinGW on Windows)
+### 🍎 MacOS (Pour les Hipsters)
+- [🎨 Version GUI](https://github.com/roothheo/Bashcord-Installer/releases/latest/download/Bashcord.MacOS.zip) - *Élégant comme un MacBook à 3000€*
+
+### 🐧 Linux (Pour les Illuminés)
+- [🎨 Version GUI X11](https://github.com/roothheo/Bashcord-Installer/releases/latest/download/Bashcord-x11) - *Old school mais efficace*
+- [⌨️ Version CLI](https://github.com/roothheo/Bashcord-Installer/releases/latest/download/Bashcord-Linux) - *Parce que les vrais utilisent le terminal*
+
+## 🛠️ Compilation - Pour les Courageux
+
+*"Ah, tu veux compiler toi-même ? Respect, voici comment ne pas tout casser..."*
+
+### 🔧 Prérequis (Ou Comment Préparer ton Calvaire)
+
+Tu auras besoin de :
+- [Go](https://go.dev/doc/install) - *Le langage, pas le jeu de société*
+- GCC - *MinGW sur Windows, parce que Microsoft aime compliquer*
 
 <details>
-<summary>Additionally, if you're using Linux, you have to install some additional dependencies:</summary>
+<summary>🐧 Dépendances Linux (Clique si tu es assez fou pour utiliser Linux)</summary>
 
-#### Base dependencies
-```sh
+#### Dépendances de base (Le minimum syndical)
+```bash
+# Ubuntu/Debian (Pour les débutants)
 apt install -y pkg-config libsdl2-dev libglx-dev libgl1-mesa-dev
+
+# Fedora/RHEL (Pour les rebelles)
 dnf install pkg-config libGL-devel libXxf86vm-devel
 ```
 
-#### X11 dependencies
-```sh
+#### Dépendances X11 (L'ancêtre qui refuse de mourir)
+```bash
+# Ubuntu/Debian
 apt install -y xorg-dev
+
+# Fedora/RHEL
 dnf install libXcursor-devel libXi-devel libXinerama-devel libXrandr-devel
 ```
 
-#### Wayland dependencies
-```sh
+#### Dépendances Wayland (Le futur, paraît-il)
+```bash
+# Ubuntu/Debian
 apt install -y libwayland-dev libxkbcommon-dev wayland-protocols extra-cmake-modules
+
+# Fedora/RHEL
 dnf install wayland-devel libxkbcommon-devel wayland-protocols-devel extra-cmake-modules
 ```
 
 </details>
 
-### Building
+### 🏗️ Construction (Ou l'Art de Transformer du Code en Miracle)
 
-#### Install dependencies
-
-```sh
+#### 1. Installer les dépendances
+```bash
 go mod tidy
+# Prie pour que ça marche du premier coup
 ```
 
-#### Build the GUI
-
-##### Windows / Mac / Linux X11
-```sh
+#### 2. Compiler la version GUI
+```bash
+# Windows/Mac/Linux X11 (Le trio classique)
 go build
-```
 
-##### Linux Wayland
-```sh
+# Linux Wayland (Pour les avant-gardistes)
 go build --tags wayland
 ```
 
-#### Build the CLI
-```
+#### 3. Compiler la version CLI
+```bash
 go build --tags cli
+# Parce que parfois, moins c'est plus
 ```
 
-You might want to pass some flags to this command to get a better build.
-See [the GitHub workflow](https://github.com/Equicord/Equilotl/blob/main/.github/workflows/release.yml) for what flags I pass or if you want more precise instructions
+> 💡 **Astuce de Pro** : Regarde [notre workflow GitHub](https://github.com/roothheo/Bashcord-Installer/blob/main/.github/workflows/release.yml) pour les flags de compilation optimaux. Ou pas, fais comme tu veux, c'est ta vie après tout.
+
+## 🎭 Fonctionnalités Exclusives
+
+- 🎪 **Messages sarcastiques** - Parce que l'installation doit être divertissante
+- 🎯 **Interface française** - Oui, on parle la langue de Molière ici
+- 🛡️ **Détection automatique** - Trouve Discord même s'il se cache
+- 🎨 **Personnalisation** - Ton Discord, tes règles
+- 🚀 **Mise à jour automatique** - Parce qu'on n'a pas que ça à faire
+
+## 🤝 Contribution - Rejoins la Révolution
+
+Tu veux contribuer ? Fantastique ! Voici comment :
+
+1. 🍴 Fork le projet (comme si tu volais une recette)
+2. 🌿 Crée une branche (`git checkout -b feature/ma-super-feature`)
+3. 💾 Commit tes changements (`git commit -m 'Ajout de ma super feature'`)
+4. 📤 Push ta branche (`git push origin feature/ma-super-feature`)
+5. 🎯 Ouvre une Pull Request et prie
+
+## 📜 Licence
+
+Ce projet est sous licence [MIT](LICENSE) - Fais-en ce que tu veux, mais ne nous blame pas si ça explose.
+
+## 🙏 Remerciements
+
+- À l'équipe [Equicord](https://github.com/Equicord/Equicord) pour le mod génial
+- À Discord pour avoir créé quelque chose d'assez bien pour qu'on veuille le modifier
+- À toi, utilisateur courageux, qui lit jusqu'au bout
+
+---
+
+<div align="center">
+
+**Fait avec 💜 et beaucoup de café par des développeurs légèrement fous**
+
+*"Parce que la vie est trop courte pour utiliser Discord vanilla"*
+
+</div>
