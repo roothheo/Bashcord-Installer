@@ -80,7 +80,7 @@ func main() {
 		os.Setenv("GDK_DPI_SCALE", "1")
 	}
 
-	win = g.NewMasterWindow("Bashcord", 1200, 800, linuxFlags)
+	win = g.NewMasterWindow("Bashcord", 1400, 900, linuxFlags)
 
 	icon, _, err := image.Decode(bytes.NewReader(iconBytes))
 	if err != nil {
