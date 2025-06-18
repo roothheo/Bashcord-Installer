@@ -26,15 +26,6 @@ var interactive = false
 
 func showBanner() {
 	color.HiRed(`                                                                                                    
-                                                                                                    
-                                                                                                    
-                                                                                                    
-                                                                                                    
-                                                                                                    
-                                                                                                    
-                                                                                                    
-                                                                                                    
-                                                                                                    
                                            :::::::::::::                                            
                                              ::::::::::::    ::                                     
                                                 ::::::::::-  ::::                                   
@@ -176,7 +167,7 @@ func main() {
 			"Quitter (fuyaaaaard !)",
 		}
 		_, choice, err := (&promptui.Select{
-			Label: "Que veux-tu faire ? (Appuie sur Entrée soit pas con)",
+			Label: "Que veux-tu faire ? (Appuie sur Entrée sois pas con)",
 			Items: choices,
 			HideHelp: true,
 		}).Run()
