@@ -178,6 +178,7 @@ func main() {
 		_, choice, err := (&promptui.Select{
 			Label: "Que veux-tu faire ? (Appuie sur Entrée soit pas con)",
 			Items: choices,
+			HideHelp: true,
 		}).Run()
 		handlePromptError(err)
 
@@ -306,6 +307,7 @@ func PromptDiscord(action, dir, branch string) *DiscordInstall {
 	_, choice, err := (&promptui.Select{
 		Label: "Sélectionne l'installation Discord à " + action + " (Appuie sur Entrée pour confirmer, courage !)",
 		Items: items,
+		HideHelp: true,
 	}).Run()
 	handlePromptError(err)
 
