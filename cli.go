@@ -85,6 +85,11 @@ func die(msg string) {
 }
 
 func main() {
+	// Agrandir la console sur Windows pour mieux afficher l'ASCII art
+	if runtime.GOOS == "windows" {
+		ResizeConsoleWindow()
+	}
+	
 	InitGithubDownloader()
 	discords = FindDiscords()
 
