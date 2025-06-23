@@ -21,6 +21,8 @@ import (
 
 	// png decoder for icon
 	_ "image/png"
+	// jpeg decoder for background
+	_ "image/jpeg"
 	"os"
 	path "path/filepath"
 	"runtime"
@@ -42,8 +44,8 @@ var (
 	didAutoComplete        bool
 
 	modalId      = 0
-	modalTitle   = "Oh No :("
-	modalMessage = "You should never see this"
+	modalTitle   = "Oh Non :("
+	modalMessage = "Vous ne devriez jamais voir ceci"
 
 	acceptedOpenAsar   bool
 	showedUpdatePrompt bool
@@ -53,6 +55,13 @@ var (
 
 //go:embed winres/icon.png
 var iconBytes []byte
+
+// Couleurs inspirées de Zelda Majora's Mask
+var (
+	ZeldaDarkPurple = color.RGBA{R: 0x2A, G: 0x1B, B: 0x3D, A: 0xFF}
+	ZeldaGold       = color.RGBA{R: 0xFF, G: 0xD7, B: 0x00, A: 0xFF}
+	ZeldaDeepBlue   = color.RGBA{R: 0x1A, G: 0x2B, B: 0x4A, A: 0xFF}
+)
 
 func init() {
 	LogLevel = LevelDebug
@@ -89,6 +98,7 @@ func main() {
 	} else {
 		win.SetIcon([]image.Image{icon})
 	}
+
 	win.Run(loop)
 }
 
@@ -126,7 +136,7 @@ func InstallLatestBuilds() (err error) {
 
 	err = installLatestBuilds()
 	if err != nil {
-		ShowModal("Uh Oh!", "Failed to install the latest Equicord builds from GitHub:\n"+err.Error())
+		ShowModal("Oups !", "Échec de l'installation des dernières versions de Bashcord depuis GitHub :\n"+err.Error())
 	}
 	return
 }
@@ -159,14 +169,14 @@ func handleOpenAsarConfirmed() {
 	if choice != nil {
 		if choice.IsOpenAsar() {
 			if err := choice.UninstallOpenAsar(); err != nil {
-				handleErr(choice, err, "uninstall OpenAsar from")
+				handleErr(choice, err, "désinstaller OpenAsar de")
 			} else {
 				g.OpenPopup("#openasar-unpatched")
 				g.Update()
 			}
 		} else {
 			if err := choice.InstallOpenAsar(); err != nil {
-				handleErr(choice, err, "install OpenAsar on")
+				handleErr(choice, err, "installer OpenAsar sur")
 			} else {
 				g.OpenPopup("#openasar-patched")
 				g.Update()
@@ -179,20 +189,20 @@ func handleErr(di *DiscordInstall, err error, action string) {
 	if errors.Is(err, os.ErrPermission) {
 		switch runtime.GOOS {
 		case "windows":
-			err = errors.New("Permission denied. Make sure your Discord is fully closed (from the tray)!")
+			err = errors.New("Permission refusée. Assurez-vous que Discord est complètement fermé (depuis la barre système) !")
 		case "darwin":
 			// FIXME: This text is not selectable which is a bit mehhh
 			command := "sudo chown -R \"${USER}:wheel\" " + di.path
-			err = errors.New("Permission denied. Please grant the installer Full Disk Access in the system settings (privacy & security page).\n\nIf that also doesn't work, try running the following command in your terminal:\n" + command)
+			err = errors.New("Permission refusée. Veuillez accorder à l'installateur l'accès complet au disque dans les paramètres système (page confidentialité et sécurité).\n\nSi cela ne fonctionne toujours pas, essayez d'exécuter la commande suivante dans votre terminal :\n" + command)
 		case "linux":
 			command := "sudo chown -R \"$USER:$USER\" " + di.path
-			err = errors.New("Permission denied. Try to run the installer with sudo privileges.\n\nIf that also doesn't work, try running the following command in your terminal:\n" + command)
+			err = errors.New("Permission refusée. Essayez d'exécuter l'installateur avec les privilèges sudo.\n\nSi cela ne fonctionne toujours pas, essayez d'exécuter la commande suivante dans votre terminal :\n" + command)
 		default:
-			err = errors.New("Permission denied. Maybe try running me as Administrator/Root?")
+			err = errors.New("Permission refusée. Essayez peut-être de m'exécuter en tant qu'Administrateur/Root ?")
 		}
 	}
 
-	ShowModal("Failed to "+action+" this Install", err.Error())
+	ShowModal("Échec de "+action+" cette installation", err.Error())
 }
 
 func HandleScuffedInstall() {
@@ -204,7 +214,7 @@ func (di *DiscordInstall) Patch() {
 		return
 	}
 	if err := di.patch(); err != nil {
-		handleErr(di, err, "patch")
+		handleErr(di, err, "patcher")
 	} else {
 		g.OpenPopup("#patched")
 	}
@@ -212,7 +222,7 @@ func (di *DiscordInstall) Patch() {
 
 func (di *DiscordInstall) Unpatch() {
 	if err := di.unpatch(); err != nil {
-		handleErr(di, err, "unpatch")
+		handleErr(di, err, "dépatcher")
 	} else {
 		g.OpenPopup("#unpatched")
 	}
@@ -313,7 +323,7 @@ func RawInfoModal(id, title, description string, isOpenAsar bool) g.Widget {
 						&CondWidget{id == "#scuffed-install", func() g.Widget {
 							return g.Column(
 								g.Dummy(0, 10),
-								g.Button("Take me there!").OnClick(func() {
+								g.Button("Emmène-moi là !").OnClick(func() {
 									// this issue only exists on windows so using Windows specific path is oki
 									username := os.Getenv("USERNAME")
 									programData := os.Getenv("PROGRAMDATA")
@@ -325,13 +335,13 @@ func RawInfoModal(id, title, description string, isOpenAsar bool) g.Widget {
 						&CondWidget{isOpenAsar,
 							func() g.Widget {
 								return g.Row(
-									g.Button("Accept").
+									g.Button("Accepter").
 										OnClick(func() {
 											acceptedOpenAsar = true
 											g.CloseCurrentPopup()
 										}).
 										Size(100, 30),
-									g.Button("Cancel").
+									g.Button("Annuler").
 										OnClick(func() {
 											g.CloseCurrentPopup()
 										}).
@@ -361,19 +371,19 @@ func UpdateModal() g.Widget {
 				Layout(
 					g.Align(g.AlignCenter).To(
 						g.Style().SetFontSize(30).To(
-							g.Label("Your Installer is outdated!"),
+							g.Label("Votre installateur est obsolète !"),
 						),
 						g.Style().SetFontSize(20).To(
 							g.Label(
-								"Would you like to update now?\n\n"+
-									"Once you press Update Now, the new installer will automatically be downloaded.\n"+
-									"The installer will temporarily seem unresponsive. Just wait!\n"+
-									"Once the update is done, the Installer will automatically reopen.\n\n"+
-									"On MacOs, Auto updates are not supported, so it will instead open in browser.",
+								"Souhaitez-vous mettre à jour maintenant ?\n\n"+
+									"Une fois que vous appuyez sur Mettre à jour maintenant, le nouvel installateur sera automatiquement téléchargé.\n"+
+									"L'installateur semblera temporairement ne plus répondre. Attendez simplement !\n"+
+									"Une fois la mise à jour terminée, l'installateur se rouvrira automatiquement.\n\n"+
+									"Sur MacOS, les mises à jour automatiques ne sont pas prises en charge, il s'ouvrira donc dans le navigateur.",
 							),
 						),
 						g.Row(
-							g.Button("Update Now").
+							g.Button("Mettre à jour maintenant").
 								OnClick(func() {
 									if runtime.GOOS == "darwin" {
 										g.CloseCurrentPopup()
@@ -385,15 +395,15 @@ func UpdateModal() g.Widget {
 									g.CloseCurrentPopup()
 
 									if err != nil {
-										ShowModal("Failed to update self!", err.Error())
+										ShowModal("Échec de la mise à jour automatique !", err.Error())
 									} else {
 										if err = RelaunchSelf(); err != nil {
-											ShowModal("Failed to restart self! Please do it manually.", err.Error())
+											ShowModal("Échec du redémarrage automatique ! Veuillez le faire manuellement.", err.Error())
 										}
 									}
 								}).
-								Size(100, 30),
-							g.Button("Later").
+								Size(150, 30),
+							g.Button("Plus tard").
 								OnClick(func() {
 									g.CloseCurrentPopup()
 								}).
@@ -429,54 +439,80 @@ func renderInstaller() g.Widget {
 
 	layout := g.Layout{
 		g.Dummy(0, 20),
-		g.Separator(),
+		g.Style().
+			SetColor(g.StyleColorSeparator, ZeldaGold).
+			To(
+				g.Separator(),
+			),
 		g.Dummy(0, 5),
 
 		g.Style().SetFontSize(20).To(
 			renderErrorCard(
-				DiscordYellow,
-				"**Github** is the only official place to get Equicord. Any other site claiming to be us is malicious.\n"+
-					"If you downloaded from any other source, you should delete / uninstall everything immediately, run a malware scan and change your Discord password.",
+				ZeldaDarkPurple,
+				"**Github** est le seul endroit officiel pour obtenir Bashcord. Tout autre site pretendant etre nous est malveillant.\n"+
+					"Si vous avez telecharge depuis une autre source, vous devriez tout supprimer/desinstaller immediatement, effectuer une analyse anti-malware et changer votre mot de passe Discord.",
 				90,
 			),
 		),
 
 		g.Dummy(0, 5),
 
-		g.Style().SetFontSize(30).To(
-			g.Label("Please select an install to patch"),
-		),
+		g.Style().
+			SetColor(g.StyleColorText, ZeldaGold).
+			SetFontSize(30).
+			To(
+				g.Label("Veuillez selectionner une installation a patcher"),
+			),
 
 		&CondWidget{len(discords) == 0, func() g.Widget {
-			s := "No Discord installs found. You first need to install Discord."
+			s := "Aucune installation Discord trouvee. Vous devez d'abord installer Discord."
 			if runtime.GOOS == "linux" {
-				s += " snap is not supported."
+				s += " snap n'est pas pris en charge."
 			}
-			return g.Label(s)
+			return g.Style().
+				SetColor(g.StyleColorText, color.RGBA{255, 100, 100, 255}).
+				To(
+					g.Label(s),
+				)
 		}, nil},
 
-		g.Style().SetFontSize(20).To(
-			g.RangeBuilder("Discords", discords, func(i int, v any) g.Widget {
-				d := v.(*DiscordInstall)
-				//goland:noinspection GoDeprecation
-				text := strings.Title(d.branch) + " - " + d.path
-				if d.isPatched {
-					text += " [PATCHED]"
-				}
-				return g.RadioButton(text, radioIdx == i).
-					OnChange(makeRadioOnChange(i))
-			}),
+		g.Style().
+			SetColor(g.StyleColorText, color.RGBA{255, 255, 255, 255}).
+			SetFontSize(20).
+			To(
+				g.RangeBuilder("Discords", discords, func(i int, v any) g.Widget {
+					d := v.(*DiscordInstall)
+					//goland:noinspection GoDeprecation
+					text := strings.Title(d.branch) + " - " + d.path
+					if d.isPatched {
+						text += " [PATCHE]"
+					}
+					return g.Style().
+						SetColor(g.StyleColorCheckMark, ZeldaGold).
+						To(
+							g.RadioButton(text, radioIdx == i).
+								OnChange(makeRadioOnChange(i)),
+						)
+				}),
 
-			g.RadioButton("Custom Install Location", radioIdx == customChoiceIdx).
-				OnChange(makeRadioOnChange(customChoiceIdx)),
-		),
+				g.Style().
+					SetColor(g.StyleColorCheckMark, ZeldaGold).
+					To(
+						g.RadioButton("Emplacement d'installation personnalise", radioIdx == customChoiceIdx).
+							OnChange(makeRadioOnChange(customChoiceIdx)),
+					),
+			),
 
 		g.Dummy(0, 5),
 		g.Style().
 			SetStyle(g.StyleVarFramePadding, 16, 16).
+			SetColor(g.StyleColorFrameBg, ZeldaDarkPurple).
+			SetColor(g.StyleColorFrameBgHovered, ZeldaGold).
+			SetColor(g.StyleColorFrameBgActive, ZeldaGold).
+			SetColor(g.StyleColorText, color.RGBA{255, 255, 255, 255}).
 			SetFontSize(20).
 			To(
-				g.InputText(&customDir).Hint("The custom location").
+				g.InputText(&customDir).Hint("L'emplacement personnalise").
 					Size(w - 16).
 					Flags(g.InputTextFlagsCallbackCompletion).
 					OnChange(onCustomInputChanged).
@@ -513,29 +549,39 @@ func renderInstaller() g.Widget {
 						},
 					),
 			),
-		g.RangeBuilder("AutoComplete", candidates, func(i int, v any) g.Widget {
-			dir := v.(string)
-			return g.Label(dir)
-		}),
+		g.Style().
+			SetColor(g.StyleColorText, color.RGBA{200, 200, 255, 255}).
+			To(
+				g.RangeBuilder("AutoComplete", candidates, func(i int, v any) g.Widget {
+					dir := v.(string)
+					return g.Label(dir)
+				}),
+			),
 
 		g.Dummy(0, 20),
 
 		g.Style().SetFontSize(20).To(
 			g.Row(
 				g.Style().
-					SetColor(g.StyleColorButton, DiscordGreen).
+					SetColor(g.StyleColorButton, ZeldaGold).
+					SetColor(g.StyleColorButtonHovered, color.RGBA{255, 215, 0, 200}).
+					SetColor(g.StyleColorButtonActive, color.RGBA{255, 215, 0, 255}).
+					SetColor(g.StyleColorText, ZeldaDeepBlue).
 					SetDisabled(GithubError != nil).
 					To(
-						g.Button("Install").
+						g.Button("Installer").
 							OnClick(handlePatch).
 							Size((w-40)/4, 50),
-						Tooltip("Patch the selected Discord Install"),
+						Tooltip("Patcher l'installation Discord selectionnee"),
 					),
 				g.Style().
-					SetColor(g.StyleColorButton, DiscordBlue).
+					SetColor(g.StyleColorButton, color.RGBA{100, 149, 237, 255}).
+					SetColor(g.StyleColorButtonHovered, color.RGBA{100, 149, 237, 200}).
+					SetColor(g.StyleColorButtonActive, color.RGBA{100, 149, 237, 255}).
+					SetColor(g.StyleColorText, color.RGBA{255, 255, 255, 255}).
 					SetDisabled(GithubError != nil).
 					To(
-						g.Button("Reinstall / Repair").
+						g.Button("Reinstaller / Reparer").
 							OnClick(func() {
 								if IsDevInstall {
 									handlePatch()
@@ -547,44 +593,50 @@ func renderInstaller() g.Widget {
 								}
 							}).
 							Size((w-40)/4, 50),
-						Tooltip("Reinstall & Update Equicord"),
+						Tooltip("Reinstaller et mettre a jour Bashcord"),
 					),
 				g.Style().
-					SetColor(g.StyleColorButton, DiscordRed).
+					SetColor(g.StyleColorButton, color.RGBA{220, 20, 60, 255}).
+					SetColor(g.StyleColorButtonHovered, color.RGBA{220, 20, 60, 200}).
+					SetColor(g.StyleColorButtonActive, color.RGBA{220, 20, 60, 255}).
+					SetColor(g.StyleColorText, color.RGBA{255, 255, 255, 255}).
 					To(
-						g.Button("Uninstall").
+						g.Button("Desinstaller").
 							OnClick(handleUnpatch).
 							Size((w-40)/4, 50),
-						Tooltip("Unpatch the selected Discord Install"),
+						Tooltip("Depatcher l'installation Discord selectionnee"),
 					),
 				g.Style().
-					SetColor(g.StyleColorButton, Ternary(isOpenAsar, DiscordRed, DiscordGreen)).
+					SetColor(g.StyleColorButton, Ternary(isOpenAsar, color.RGBA{220, 20, 60, 255}, ZeldaGold)).
+					SetColor(g.StyleColorButtonHovered, Ternary(isOpenAsar, color.RGBA{220, 20, 60, 200}, color.RGBA{255, 215, 0, 200})).
+					SetColor(g.StyleColorButtonActive, Ternary(isOpenAsar, color.RGBA{220, 20, 60, 255}, color.RGBA{255, 215, 0, 255})).
+					SetColor(g.StyleColorText, Ternary(isOpenAsar, color.RGBA{255, 255, 255, 255}, ZeldaDeepBlue)).
 					To(
-						g.Button(Ternary(isOpenAsar, "Uninstall OpenAsar", Ternary(currentDiscord != nil, "Install OpenAsar", "(Un-)Install OpenAsar"))).
+						g.Button(Ternary(isOpenAsar, "Desinstaller OpenAsar", Ternary(currentDiscord != nil, "Installer OpenAsar", "(Des)installer OpenAsar"))).
 							OnClick(handleOpenAsar).
 							Size((w-40)/4, 50),
-						Tooltip("Manage OpenAsar"),
+						Tooltip("Gerer OpenAsar"),
 					),
 			),
 		),
 
-		InfoModal("#patched", "Successfully Patched", "If Discord is still open, fully close it first.\n"+
-			"Then, start it and verify Equicord installed successfully by looking for its category in Discord Settings"),
-		InfoModal("#unpatched", "Successfully Unpatched", "If Discord is still open, fully close it first. Then start it again, it should be back to stock!"),
-		InfoModal("#scuffed-install", "Hold On!", "You have a broken Discord Install.\n"+
-			"Sometimes Discord decides to install to the wrong location for some reason!\n"+
-			"You need to fix this before patching, otherwise Equicord will likely not work.\n\n"+
-			"Use the below button to jump there and delete any folder called Discord or Squirrel.\n"+
-			"If the folder is now empty, feel free to go back a step and delete that folder too.\n"+
-			"Then see if Discord still starts. If not, reinstall it"),
-		RawInfoModal("#openasar-confirm", "OpenAsar", "OpenAsar is an open-source alternative of Discord desktop's app.asar.\n"+
-			"Equicord is in no way affiliated with OpenAsar.\n"+
-			"You're installing OpenAsar at your own risk. If you run into issues with OpenAsar,\n"+
-			"no support will be provided, join the OpenAsar Server instead!\n\n"+
-			"To install OpenAsar, press Accept and click 'Install OpenAsar' again.", true),
-		InfoModal("#openasar-patched", "Successfully Installed OpenAsar", "If Discord is still open, fully close it first. Then start it again and verify OpenAsar installed successfully!"),
-		InfoModal("#openasar-unpatched", "Successfully Uninstalled OpenAsar", "If Discord is still open, fully close it first. Then start it again and it should be back to stock!"),
-		InfoModal("#invalid-custom-location", "Invalid Location", "The specified location is not a valid Discord install.\nMake sure you select the base folder.\n\nHint: Discord snap is not supported. use flatpak or .deb"),
+		InfoModal("#patched", "Patché avec succès", "Si Discord est encore ouvert, fermez-le complètement d'abord.\n"+
+			"Ensuite, démarrez-le et vérifiez que Bashcord s'est installé avec succès en cherchant sa catégorie dans les Paramètres Discord"),
+		InfoModal("#unpatched", "Dépatché avec succès", "Si Discord est encore ouvert, fermez-le complètement d'abord. Ensuite redémarrez-le, il devrait être revenu à l'état d'origine !"),
+		InfoModal("#scuffed-install", "Attendez !", "Vous avez une installation Discord cassée.\n"+
+			"Parfois Discord décide de s'installer au mauvais endroit pour une raison quelconque !\n"+
+			"Vous devez corriger cela avant de patcher, sinon Bashcord ne fonctionnera probablement pas.\n\n"+
+			"Utilisez le bouton ci-dessous pour y aller et supprimer tout dossier appelé Discord ou Squirrel.\n"+
+			"Si le dossier est maintenant vide, n'hésitez pas à revenir en arrière et supprimer ce dossier aussi.\n"+
+			"Ensuite voyez si Discord démarre toujours. Sinon, réinstallez-le"),
+		RawInfoModal("#openasar-confirm", "OpenAsar", "OpenAsar est une alternative open-source de l'app.asar du bureau Discord.\n"+
+			"Bashcord n'est en aucun cas affilié à OpenAsar.\n"+
+			"Vous installez OpenAsar à vos propres risques. Si vous rencontrez des problèmes avec OpenAsar,\n"+
+			"aucun support ne sera fourni, rejoignez plutôt le serveur OpenAsar !\n\n"+
+			"Pour installer OpenAsar, appuyez sur Accepter et cliquez à nouveau sur 'Installer OpenAsar'.", true),
+		InfoModal("#openasar-patched", "OpenAsar installé avec succès", "Si Discord est encore ouvert, fermez-le complètement d'abord. Ensuite redémarrez-le et vérifiez qu'OpenAsar s'est installé avec succès !"),
+		InfoModal("#openasar-unpatched", "OpenAsar désinstallé avec succès", "Si Discord est encore ouvert, fermez-le complètement d'abord. Ensuite redémarrez-le et il devrait être revenu à l'état d'origine !"),
+		InfoModal("#invalid-custom-location", "Emplacement invalide", "L'emplacement spécifié n'est pas une installation Discord valide.\nAssurez-vous de sélectionner le dossier de base.\n\nAstuce : Discord snap n'est pas pris en charge. utilisez flatpak ou .deb"),
 		InfoModal("#modal"+strconv.Itoa(modalId), modalTitle, modalMessage),
 
 		UpdateModal(),
@@ -612,6 +664,15 @@ func renderErrorCard(col color.Color, message string, height float32) g.Widget {
 		)
 }
 
+func BackgroundImage() g.Widget {
+	return g.Style().
+		SetColor(g.StyleColorWindowBg, ZeldaDeepBlue).
+		SetStyleFloat(g.StyleVarAlpha, 0.95).
+		To(
+			g.Dummy(0, 0),
+		)
+}
+
 func loop() {
 	g.PushWindowPadding(48, 48)
 
@@ -629,45 +690,86 @@ func loop() {
 			}},
 		).
 		Layout(
-			g.Align(g.AlignCenter).To(
-				g.Style().SetFontSize(40).To(
-					g.Label("Bashcord"),
-				),
-			),
+			// Appliquer le thème Zelda
+			g.Style().
+				SetColor(g.StyleColorWindowBg, ZeldaDeepBlue).
+				SetColor(g.StyleColorChildBg, ZeldaDarkPurple).
+				SetColor(g.StyleColorFrameBg, ZeldaDarkPurple).
+				SetColor(g.StyleColorFrameBgHovered, ZeldaGold).
+				SetColor(g.StyleColorFrameBgActive, ZeldaGold).
+				SetColor(g.StyleColorCheckMark, ZeldaGold).
+				To(
+					g.Align(g.AlignCenter).To(
+						g.Style().
+							SetColor(g.StyleColorText, ZeldaGold).
+							SetFontSize(45).
+							To(
+								g.Label("BASHCORD"),
+							),
+						g.Style().
+							SetColor(g.StyleColorText, color.RGBA{200, 200, 255, 255}).
+							SetFontSize(16).
+							To(
+								g.Label("~ Inspire par l'univers de Majora's Mask ~"),
+							),
+					),
 
-			g.Dummy(0, 20),
-			g.Style().SetFontSize(20).To(
-				g.Row(
-					g.Label(Ternary(IsDevInstall, "Dev Install: ", "Equicord will be downloaded to: ")+EquicordDirectory),
+					g.Dummy(0, 20),
 					g.Style().
-						SetColor(g.StyleColorButton, DiscordBlue).
-						SetStyle(g.StyleVarFramePadding, 4, 4).
+						SetColor(g.StyleColorText, color.RGBA{255, 255, 255, 255}).
+						SetFontSize(20).
 						To(
-							g.Button("Open Directory").OnClick(func() {
-								g.OpenURL("file://" + path.Dir(EquicordDirectory))
-							}),
+							g.Row(
+								g.Label(Ternary(IsDevInstall, "Installation de developpement : ", "Bashcord sera telecharge vers : ")+EquicordDirectory),
+								g.Style().
+									SetColor(g.StyleColorButton, ZeldaGold).
+									SetColor(g.StyleColorButtonHovered, ZeldaDarkPurple).
+									SetColor(g.StyleColorButtonActive, ZeldaDarkPurple).
+									SetColor(g.StyleColorText, ZeldaDeepBlue).
+									SetStyle(g.StyleVarFramePadding, 4, 4).
+									To(
+										g.Button("Ouvrir le repertoire").OnClick(func() {
+											g.OpenURL("file://" + path.Dir(EquicordDirectory))
+										}),
+									),
+							),
+							&CondWidget{!IsDevInstall, func() g.Widget {
+								return g.Style().
+									SetColor(g.StyleColorText, color.RGBA{200, 200, 255, 255}).
+									To(
+										g.Label("Pour personnaliser cet emplacement, definissez la variable d'environnement 'BASHCORD_USER_DATA_DIR' et redemarrez-moi").Wrapped(true),
+									)
+							}, nil},
+							g.Dummy(0, 10),
+							g.Style().
+								SetColor(g.StyleColorText, color.RGBA{180, 180, 255, 255}).
+								To(
+									g.Label("Version de Bashcord : "+buildinfo.InstallerTag+" ("+buildinfo.InstallerGitHash+")"+Ternary(IsSelfOutdated, " - OBSOLETE", "")),
+									g.Label("Version locale de Bashcord : "+InstalledHash),
+								),
+							&CondWidget{
+								GithubError == nil,
+								func() g.Widget {
+									if IsDevInstall {
+										return g.Style().
+											SetColor(g.StyleColorText, color.RGBA{255, 200, 100, 255}).
+											To(
+												g.Label("Pas de mise a jour de Bashcord car en mode developpement"),
+											)
+									}
+									return g.Style().
+										SetColor(g.StyleColorText, color.RGBA{100, 255, 100, 255}).
+										To(
+											g.Label("Derniere version de Bashcord : " + LatestHash),
+										)
+								}, func() g.Widget {
+									return renderErrorCard(DiscordRed, "Echec de recuperation des informations depuis GitHub : "+GithubError.Error(), 40)
+								},
+							},
 						),
-				),
-				&CondWidget{!IsDevInstall, func() g.Widget {
-					return g.Label("To customise this location, set the environment variable 'EQUICORD_USER_DATA_DIR' and restart me").Wrapped(true)
-				}, nil},
-				g.Dummy(0, 10),
-				g.Label("Bashcord Version: "+buildinfo.InstallerTag+" ("+buildinfo.InstallerGitHash+")"+Ternary(IsSelfOutdated, " - OUTDATED", "")),
-				g.Label("Local Equicord Version: "+InstalledHash),
-				&CondWidget{
-					GithubError == nil,
-					func() g.Widget {
-						if IsDevInstall {
-							return g.Label("Not updating Equicord due to being in DevMode")
-						}
-						return g.Label("Latest Equicord Version: " + LatestHash)
-					}, func() g.Widget {
-						return renderErrorCard(DiscordRed, "Failed to fetch Info from GitHub: "+GithubError.Error(), 40)
-					},
-				},
-			),
 
-			renderInstaller(),
+					renderInstaller(),
+				),
 		)
 
 	g.PopStyle()
